@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken"; // Install this package if not already installed
 import { prismaClient as prisma } from "../../clients/db/index";
 
@@ -33,8 +32,8 @@ export async function GET(req: NextRequest) {
             where: { userId }, // Fetch todos for the logged-in user
         });
         return new Response(JSON.stringify(todos), { status: 200 });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: (error as any).message }), { status: 500 });
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
 
@@ -53,8 +52,8 @@ export async function POST(req: NextRequest) {
         });
 
         return new Response(JSON.stringify(newTodo), { status: 201 });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: (error as any).message }), { status: 500 });
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
 
@@ -83,8 +82,8 @@ export async function PUT(req: NextRequest) {
         });
 
         return new Response(JSON.stringify(updatedTodo), { status: 200 });
-    } catch (error) {
-        return new Response(JSON.stringify({ error: (error as any).message }), { status: 500 });
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
 
@@ -113,7 +112,7 @@ export async function DELETE(req: NextRequest) {
             JSON.stringify({ message: "Todo deleted successfully" }),
             { status: 200 }
         );
-    } catch (error) {
-        return new Response(JSON.stringify({ error: (error as any).message }), { status: 500 });
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }

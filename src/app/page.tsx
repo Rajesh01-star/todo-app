@@ -58,18 +58,28 @@ function Home() {
       loginModal.onClose();
       // Add navigation logic here
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login Failed");
+      console.log(error);
+      toast.error("Login Failed");
     }
   };
 
   const handleRegister = async () => {
     try {
-      const response = await axios.post("/api/register", registerData);
-      toast.success("Registration Successful!");
+      await axios.post("/api/register", {
+        username: registerData.username,
+        email: registerData.email,
+        password: registerData.password,
+      });
+      toast.success("Registration successful! Please login.");
       registerModal.onClose();
-      // Add navigation logic here
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration Failed");
+      loginModal.onOpen();
+      setRegisterData({
+        username: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      toast.error("Registration failed");
     }
   };
 

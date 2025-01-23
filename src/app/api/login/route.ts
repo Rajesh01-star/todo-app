@@ -1,8 +1,7 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
+import { prismaClient as prisma } from "../../clients/db/index";
 import jwt from "jsonwebtoken";
+import { verifyPassword } from "@/app/utils/auth";
 
-const prisma = new PrismaClient();
 
 // JWT Secret Key (keep it safe and use environment variables in production)
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
@@ -39,7 +38,7 @@ export async function POST(req: Request): Promise<Response> {
         }
 
         // Compare the provided password with the hashed password in the database
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = verifyPassword(password, user.password);
         if (!isPasswordValid) {
             return new Response(
                 JSON.stringify({ error: "Invalid email or password." }),

@@ -14,6 +14,7 @@ import {
 } from "@heroui/modal";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import { FiMoreVertical, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 interface Todo {
   id?: number;
@@ -33,17 +34,20 @@ function Page() {
 
   const addTodoModal = useDisclosure();
   const editTodoModal = useDisclosure();
-  const token = window.localStorage.getItem("token");
+  
+  const router = useRouter();
 
   useEffect(() => {
+    const token = window.localStorage.getItem("token");
     const fetchTodos = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/todo", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTodos(response.data);
-      } catch (error) {
+      } catch (error: any) {
         toast.error("Failed to fetch todos");
+        console.log(error);
       }
     };
     fetchTodos();
@@ -53,6 +57,7 @@ function Page() {
     if (!newTodo.title.trim() || !newTodo.content.trim()) return;
 
     try {
+      const token = window.localStorage.getItem("token");
       const response = await axios.post(
         "http://localhost:3000/api/todo",
         newTodo,
@@ -64,13 +69,15 @@ function Page() {
       setNewTodo({ title: "", content: "", isCompleted: false });
       toast.success("Todo added successfully");
       addTodoModal.onClose();
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to add todo");
+      console.log(error);
     }
   };
 
   const handleToggleComplete = async (todoId: number, isCompleted: boolean) => {
     try {
+      const token = window.localStorage.getItem("token");
       await axios.patch(
         `http://localhost:3000/api/todo/${todoId}`,
         { isCompleted: !isCompleted },
@@ -86,8 +93,9 @@ function Page() {
         )
       );
       toast.success("Todo status updated");
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to update todo status");
+      console.log(error);
     }
   };
 
@@ -95,6 +103,7 @@ function Page() {
     if (!editingTodo || !editingTodo.title.trim() || !editingTodo.content.trim()) return;
 
     try {
+      const token = window.localStorage.getItem("token");
       const response = await axios.put(
         "http://localhost:3000/api/todo",
         {
@@ -116,13 +125,15 @@ function Page() {
       toast.success("Todo updated successfully");
       editTodoModal.onClose();
       setEditingTodo(null);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Failed to update todo");
+      console.log(error);
     }
   };
 
   const handleDeleteTodo = async (todoId: number) => {
     try {
+      const token = window.localStorage.getItem("token");
       await axios.delete("http://localhost:3000/api/todo", {
         headers: { Authorization: `Bearer ${token}` },
         data: { id: todoId },
@@ -132,7 +143,13 @@ function Page() {
       toast.success("Todo deleted successfully");
     } catch (error) {
       toast.error("Failed to delete todo");
+      console.log(error);
     }
+  };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("token");
+    router.push("/");
   };
 
   return (
@@ -141,9 +158,18 @@ function Page() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">My Todo List</h1>
-          <Button color="primary" onPress={addTodoModal.onOpen}>
-            Add New Todo
-          </Button>
+          <div className="flex gap-3">
+            <Button color="primary" onPress={addTodoModal.onOpen}>
+              Add New Todo
+            </Button>
+            <Button 
+              color="danger" 
+              variant="light" 
+              onPress={handleLogout}
+            >
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
