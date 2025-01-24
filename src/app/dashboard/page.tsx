@@ -12,8 +12,21 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/modal";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
-import { FiMoreVertical, FiEdit2, FiTrash2, FiList, FiCheckCircle, FiClock, FiPlus } from "react-icons/fi";
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/dropdown";
+import {
+  FiMoreVertical,
+  FiEdit2,
+  FiTrash2,
+  FiList,
+  FiCheckCircle,
+  FiClock,
+  FiPlus,
+} from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
 interface Todo {
@@ -25,14 +38,19 @@ interface Todo {
 
 // Update the axios instance to include the token from cookie in headers
 const getToken = () => {
-  const cookie = document.cookie.split(';').find(c => c.trim().startsWith('token='));
-  return cookie ? cookie.split('=')[1] : null;
+  const cookie = document.cookie
+    .split(";")
+    .find((c) => c.trim().startsWith("token="));
+  return cookie ? cookie.split("=")[1] : null;
 };
 
 // Create an axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  withCredentials: true
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? "https://todo-app-tau-gilt-98.vercel.app" // Replace with your production API URL
+      : "http://localhost:3000",
+  withCredentials: true,
 });
 
 // Add request interceptor to add token to headers
@@ -55,7 +73,7 @@ function Page() {
 
   const addTodoModal = useDisclosure();
   const editTodoModal = useDisclosure();
-  
+
   const router = useRouter();
 
   useEffect(() => {
@@ -90,14 +108,12 @@ function Page() {
     try {
       await api.put("/api/todo", {
         id: todoId,
-        isCompleted: !isCompleted
+        isCompleted: !isCompleted,
       });
 
       setTodos(
         todos.map((todo) =>
-          todo.id === todoId 
-            ? { ...todo, isCompleted: !isCompleted } 
-            : todo
+          todo.id === todoId ? { ...todo, isCompleted: !isCompleted } : todo
         )
       );
       toast.success("Todo status updated");
@@ -108,7 +124,12 @@ function Page() {
   };
 
   const handleEditTodo = async () => {
-    if (!editingTodo || !editingTodo.title.trim() || !editingTodo.content.trim()) return;
+    if (
+      !editingTodo ||
+      !editingTodo.title.trim() ||
+      !editingTodo.content.trim()
+    )
+      return;
 
     try {
       const response = await api.put("/api/todo", {
@@ -119,9 +140,7 @@ function Page() {
       });
 
       setTodos(
-        todos.map((todo) =>
-          todo.id === editingTodo.id ? response.data : todo
-        )
+        todos.map((todo) => (todo.id === editingTodo.id ? response.data : todo))
       );
       toast.success("Todo updated successfully");
       editTodoModal.onClose();
@@ -167,16 +186,16 @@ function Page() {
             </p>
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
-            <Button 
+            <Button
               className="flex-1 sm:flex-none bg-gray-800 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-300 text-white dark:text-gray-800 gap-2"
               onPress={addTodoModal.onOpen}
             >
               <FiPlus className="w-4 h-4" />
               Add New Todo
             </Button>
-            <Button 
+            <Button
               className="flex-1 sm:flex-none border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-              variant="light" 
+              variant="light"
               onPress={handleLogout}
             >
               Logout
@@ -190,7 +209,9 @@ function Page() {
               <FiList className="w-4 h-4" />
               <span className="text-xs font-medium">Total Tasks</span>
             </div>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{todos.length}</p>
+            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              {todos.length}
+            </p>
           </div>
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-2">
@@ -198,7 +219,7 @@ function Page() {
               <span className="text-xs font-medium">Completed</span>
             </div>
             <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {todos.filter(todo => todo.isCompleted).length}
+              {todos.filter((todo) => todo.isCompleted).length}
             </p>
           </div>
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
@@ -207,7 +228,7 @@ function Page() {
               <span className="text-xs font-medium">Pending</span>
             </div>
             <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {todos.filter(todo => !todo.isCompleted).length}
+              {todos.filter((todo) => !todo.isCompleted).length}
             </p>
           </div>
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 border border-gray-200 dark:border-gray-700/50">
@@ -216,15 +237,24 @@ function Page() {
               <span className="text-xs font-medium">Completion Rate</span>
             </div>
             <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {todos.length ? Math.round((todos.filter(todo => todo.isCompleted).length / todos.length) * 100) : 0}%
+              {todos.length
+                ? Math.round(
+                    (todos.filter((todo) => todo.isCompleted).length /
+                      todos.length) *
+                      100
+                  )
+                : 0}
+              %
             </p>
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-medium text-gray-800 dark:text-white">Tasks</h2>
+          <h2 className="text-lg font-medium text-gray-800 dark:text-white">
+            Tasks
+          </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {todos.length} {todos.length === 1 ? 'task' : 'tasks'} total
+            {todos.length} {todos.length === 1 ? "task" : "tasks"} total
           </p>
         </div>
 
@@ -240,21 +270,27 @@ function Page() {
                     <input
                       type="checkbox"
                       checked={todo.isCompleted}
-                      onChange={() => handleToggleComplete(todo.id!, todo.isCompleted)}
+                      onChange={() =>
+                        handleToggleComplete(todo.id!, todo.isCompleted)
+                      }
                       className="w-4 h-4 rounded-sm border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400 transition-colors"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3
                       className={`text-sm font-medium text-gray-900 dark:text-gray-100 mb-1 truncate ${
-                        todo.isCompleted ? 'line-through text-gray-500 dark:text-gray-400' : ''
+                        todo.isCompleted
+                          ? "line-through text-gray-500 dark:text-gray-400"
+                          : ""
                       }`}
                     >
                       {todo.title}
                     </h3>
                     <p
                       className={`text-xs text-gray-600 dark:text-gray-300 line-clamp-2 ${
-                        todo.isCompleted ? 'line-through text-gray-400 dark:text-gray-500' : ''
+                        todo.isCompleted
+                          ? "line-through text-gray-400 dark:text-gray-500"
+                          : ""
                       }`}
                     >
                       {todo.content}
@@ -262,8 +298,8 @@ function Page() {
                   </div>
                   <Dropdown>
                     <DropdownTrigger>
-                      <Button 
-                        isIconOnly 
+                      <Button
+                        isIconOnly
                         size="sm"
                         className="bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700/50 min-w-unit-8 w-8 h-8"
                       >
@@ -295,12 +331,14 @@ function Page() {
                 </div>
               </div>
               <div className="px-4 py-2 border-t border-gray-200/50 dark:border-gray-700/50">
-                <span className={`text-xs font-medium ${
-                  todo.isCompleted
-                    ? 'text-gray-500 dark:text-gray-400'
-                    : 'text-gray-600 dark:text-gray-300'
-                }`}>
-                  {todo.isCompleted ? 'Completed' : 'In Progress'}
+                <span
+                  className={`text-xs font-medium ${
+                    todo.isCompleted
+                      ? "text-gray-500 dark:text-gray-400"
+                      : "text-gray-600 dark:text-gray-300"
+                  }`}
+                >
+                  {todo.isCompleted ? "Completed" : "In Progress"}
                 </span>
               </div>
             </div>
@@ -321,7 +359,10 @@ function Page() {
                       label="Title"
                       value={newTodo.title}
                       onChange={(e) =>
-                        setNewTodo((prev) => ({ ...prev, title: e.target.value }))
+                        setNewTodo((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
                       }
                       placeholder="Enter todo title"
                     />
@@ -339,14 +380,14 @@ function Page() {
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <Button 
+                  <Button
                     className="border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-                    variant="light" 
+                    variant="light"
                     onPress={onClose}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     className="bg-gray-800 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-300 text-white dark:text-gray-800"
                     onPress={handleAddTodo}
                   >
@@ -391,14 +432,14 @@ function Page() {
                   </div>
                 </ModalBody>
                 <ModalFooter>
-                  <Button 
+                  <Button
                     className="border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-                    variant="light" 
+                    variant="light"
                     onPress={onClose}
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     className="bg-gray-800 hover:bg-gray-700 dark:bg-gray-200 dark:hover:bg-gray-300 text-white dark:text-gray-800"
                     onPress={handleEditTodo}
                   >
