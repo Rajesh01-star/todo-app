@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UIProvider } from "@/providers/UIProvider";
 import ThemeSwitch from "@/components/theme-switch";
+import ThemeSwitchWrapper from "@/components/theme-switch-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,19 +21,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html suppressHydrationWarning lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <UIProvider>
+          <ThemeSwitchWrapper />
           {children}
-          <div className="fixed bottom-4 right-4">
-            <ThemeSwitch />
-          </div>
         </UIProvider>
       </body>
     </html>

@@ -65,7 +65,7 @@ export async function PUT(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { id, title, content } = body;
+        const { id, title, content, isCompleted } = body;
 
         // Ensure the todo being updated belongs to the logged-in user
         const existingTodo = await prisma.todo.findUnique({
@@ -78,7 +78,7 @@ export async function PUT(req: NextRequest) {
 
         const updatedTodo = await prisma.todo.update({
             where: { id },
-            data: { title, content },
+            data: { title, content, isCompleted },
         });
 
         return new Response(JSON.stringify(updatedTodo), { status: 200 });
